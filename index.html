@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JPEG Artifact Generator</title>
+  <style>
+    /*
+     * ==========================================
+     * JPEG ARTIFACT GENERATOR
+     * v1.0.0
+     * No frameworks. No bloat. Just pixels rotting.
+     * ==========================================
+     */
+    body {
+      background-color: #c0c0c0;
+      color: #000000;
+      font-family: "Times New Roman", Times, serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .window {
+      background-color: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
+      padding: 2px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .title-bar {
+      background-color: #000080;
+      color: #ffffff;
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      font-weight: bold;
+      padding: 3px 5px;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .content {
+      padding: 10px;
+      border: 1px solid #808080;
+      background-color: #ffffff;
+    }
+
+    h1 {
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #808080;
+      padding-bottom: 5px;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+      background-color: #dfdfdf;
+      border: 1px solid #808080;
+      padding: 10px;
+    }
+
+    fieldset {
+      border: 1px groove #ffffff;
+      padding: 10px;
+      margin: 0;
+    }
+
+    legend {
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      font-size: 12px;
+    }
+
+    .control-group {
+      margin-bottom: 10px;
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      font-size: 13px;
+    }
+
+    .control-group label {
+      display: inline-block;
+      width: 120px;
+    }
+
+    input[type="range"] {
+      vertical-align: middle;
+    }
+
+    button {
+      font-family: "MS Sans Serif", Arial, sans-serif;
+      background-color: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
+      padding: 5px 15px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #000;
+    }
+
+    button:active:not(:disabled) {
+      border-top: 2px solid #808080;
+      border-left: 2px solid #808080;
+      border-right: 2px solid #ffffff;
+      border-bottom: 2px solid #ffffff;
+    }
+
+    button:disabled {
+      color: #808080;
+      cursor: not-allowed;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .canvas-wrapper {
+      border: 2px inset #ffffff;
+      background-color: #808080;
+      padding: 5px;
+      overflow: auto;
+      max-height: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    canvas {
+      display: block;
+      background: transparent;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .poetry {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px dotted #808080;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="window">
+  <div class="title-bar">
+    <span>JPEG_Artifact_Generator.exe</span>
+    <span>_ &nbsp; [] &nbsp; X</span>
+  </div>
+  
+  <div class="content">
+    <h1>JPEG Artifact Generator</h1>
+    
+    <div class="controls">
+      <fieldset>
+        <legend>Source File</legend>
+        <input type="file" id="file-input" accept="image/*">
+      </fieldset>
+
+      <fieldset>
+        <legend>Degradation Parameters</legend>
+        <div class="control-group">
+          <label for="quality">Quality (<span id="q-val">0.30</span>):</label>
+          <input type="range" id="quality" min="0" max="1" step="0.01" value="0.30">
+        </div>
+        <div class="control-group">
+          <label for="iterations">Iterations (<span id="i-val">50</span>):</label>
+          <input type="range" id="iterations" min="1" max="200" step="1" value="50">
+        </div>
+        <div class="control-group">
+          <label for="noise">Sensor Noise (<span id="n-val">0</span>):</label>
+          <input type="range" id="noise" min="0" max="100" step="1" value="0">
+        </div>
+        <div class="control-group">
+          <label for="sharpen">Over-Sharpen (<span id="s-val">0</span>):</label>
+          <input type="range" id="sharpen" min="0" max="100" step="1" value="0">
+        </div>
+        <div class="control-group">
+          <label for="colorshift">Color Shift (<span id="c-val">0</span>):</label>
+          <input type="range" id="colorshift" min="0" max="100" step="1" value="0">
+        </div>
+        <div class="button-row">
+          <button id="rot-btn" disabled>Rot Image</button>
+          <button id="reset-btn" disabled>Reset Image</button>
+          <button id="download-btn" disabled>Save Artifact</button>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="canvas-wrapper">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div class="poetry">
+      <p>
+        <em>"The poor image is a copy in motion. Its quality is bad, its resolution substandard. As it accelerates, it deteriorates. It is a ghost of an image, a preview, a thumbnail, an errant idea, an itinerant image distributed for free, squeezed through slow digital connections, compressed, reproduced, ripped, remixed, as well as copied and pasted into other channels of distribution." &mdash; Hito Steyerl</em>
+      </p>
+      <p>
+        Here, we do not artificially simulate decay; we perform it. We re-compress, again and again, letting the algorithm chew the data until only the artifact remains&mdash;a digital fossil of the original intent, beautifully ruined by the mechanics of its preservation.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==========================================
+  // CORE LOGIC (Written circa 2004 aesthetic)
+  // ==========================================
+  
+  var fileInput = document.getElementById('file-input');
+  var qualitySlider = document.getElementById('quality');
+  var iterationsSlider = document.getElementById('iterations');
+  var noiseSlider = document.getElementById('noise');
+  var sharpenSlider = document.getElementById('sharpen');
+  var colorshiftSlider = document.getElementById('colorshift');
+
+  var qVal = document.getElementById('q-val');
+  var iVal = document.getElementById('i-val');
+  var nVal = document.getElementById('n-val');
+  var sVal = document.getElementById('s-val');
+  var cVal = document.getElementById('c-val');
+  var rotBtn = document.getElementById('rot-btn');
+  var resetBtn = document.getElementById('reset-btn');
+  var downloadBtn = document.getElementById('download-btn');
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+
+  var sourceLoaded = false;
+  var isProcessing = false;
+  var originalImage = null;
+
+  // Update UI labels dynamically
+  qualitySlider.oninput = function(e) { 
+    qVal.innerHTML = parseFloat(e.target.value).toFixed(2); 
+  };
+  
+  iterationsSlider.oninput = function(e) { 
+    iVal.innerHTML = e.target.value; 
+  };
+
+  noiseSlider.oninput = function(e) { 
+    nVal.innerHTML = e.target.value; 
+  };
+
+  sharpenSlider.oninput = function(e) { 
+    sVal.innerHTML = e.target.value; 
+  };
+
+  colorshiftSlider.oninput = function(e) { 
+    cVal.innerHTML = e.target.value; 
+  };
+
+  // Handle Image Upload
+  fileInput.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(event) {
+      var img = new Image();
+      img.onload = function() {
+        // Store pristine original
+        originalImage = img;
+        
+        // Match canvas dimensions to the raw image pixels
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // Clear and draw the pristine original
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        
+        sourceLoaded = true;
+        rotBtn.disabled = false;
+        resetBtn.disabled = false;
+        downloadBtn.disabled = false;
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // The Rot Engine: Progressively compress via Canvas DataURLs
+  rotBtn.onclick = async function() {
+    if (!sourceLoaded || isProcessing) return;
+    
+    isProcessing = true;
+    rotBtn.disabled = true;
+    resetBtn.disabled = true;
+    downloadBtn.disabled = true;
+    
+    var originalText = rotBtn.innerHTML;
+    rotBtn.innerHTML = "Degrading...";
+
+    var quality = parseFloat(qualitySlider.value);
+    var iterations = parseInt(iterationsSlider.value, 10);
+    var noiseAmt = parseFloat(noiseSlider.value);
+    var sharpenAmt = parseFloat(sharpenSlider.value);
+    var colorAmt = parseFloat(colorshiftSlider.value);
+
+    // Matrix / pixel manipulation functions
+    function applyNoise(imageData, amount) {
+      if (amount <= 0) return;
+      var data = imageData.data;
+      var noiseLevel = amount * 0.5;
+      for (var i = 0; i < data.length; i += 4) {
+        var lumaNoise = (Math.random() - 0.5) * noiseLevel;
+        var rNoise = lumaNoise + (Math.random() - 0.5) * noiseLevel * 0.5;
+        var gNoise = lumaNoise + (Math.random() - 0.5) * noiseLevel * 0.5;
+        var bNoise = lumaNoise + (Math.random() - 0.5) * noiseLevel * 0.5;
+        data[i] += rNoise;
+        data[i+1] += gNoise;
+        data[i+2] += bNoise;
+      }
+    }
+
+    function applySharpen(imageData, amount, width, height) {
+      if (amount <= 0) return;
+      var data = imageData.data;
+      var out = new Uint8ClampedArray(data.length);
+      var amt = amount / 100.0;
+      var center = 1.0 + 4.0 * amt;
+      var edge = -1.0 * amt;
+
+      for (var y = 1; y < height - 1; y++) {
+        for (var x = 1; x < width - 1; x++) {
+          var idx = (y * width + x) * 4;
+          for (var c = 0; c < 3; c++) {
+            var val = data[idx + c] * center +
+                      data[idx - 4 + c] * edge +
+                      data[idx + 4 + c] * edge +
+                      data[idx - width * 4 + c] * edge +
+                      data[idx + width * 4 + c] * edge;
+            out[idx + c] = val;
+          }
+          out[idx + 3] = data[idx + 3];
+        }
+      }
+      for (var y = 1; y < height - 1; y++) {
+        for (var x = 1; x < width - 1; x++) {
+          var idx = (y * width + x) * 4;
+          data[idx] = out[idx];
+          data[idx+1] = out[idx+1];
+          data[idx+2] = out[idx+2];
+        }
+      }
+    }
+
+    function applyColorShift(imageData, amount) {
+      if (amount <= 0) return;
+      var data = imageData.data;
+      var amt = amount / 100.0;
+      var rShift = amt * 2.0;
+      var bShift = -amt * 2.0;
+      var contrast = 1.0 + (amt * 0.05);
+      var intercept = 128 * (1 - contrast);
+
+      for (var i = 0; i < data.length; i += 4) {
+        data[i]   = data[i] * contrast + intercept + rShift;
+        data[i+1] = data[i+1] * contrast + intercept;
+        data[i+2] = data[i+2] * contrast + intercept + bShift;
+      }
+    }
+
+    for (var i = 0; i < iterations; i++) {
+      // 1. Export as a compressed JPEG
+      var dataUrl = canvas.toDataURL('image/jpeg', quality);
+      
+      // 2. Load it back async
+      await new Promise(function(resolve, reject) {
+        var tempImg = new Image();
+        tempImg.onload = function() {
+          // 3. Render the degraded image back to the canvas over the old one
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(tempImg, 0, 0);
+
+          if (noiseAmt > 0 || sharpenAmt > 0 || colorAmt > 0) {
+            var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            applyNoise(imgData, noiseAmt);
+            applyColorShift(imgData, colorAmt);
+            applySharpen(imgData, sharpenAmt, canvas.width, canvas.height);
+            ctx.putImageData(imgData, 0, 0);
+          }
+
+          resolve();
+        };
+        tempImg.onerror = reject;
+        tempImg.src = dataUrl;
+      });
+
+      // Update UI periodically to show progress
+      if (i % 3 === 0 || i === iterations - 1) {
+        var pct = Math.round(((i + 1) / iterations) * 100);
+        rotBtn.innerHTML = "Degrading... " + pct + "%";
+      }
+      
+      // Yield execution to allow the DOM to repaint
+      await new Promise(function(r) { setTimeout(r, 0); });
+    }
+
+    // Restore UI state
+    rotBtn.innerHTML = originalText;
+    rotBtn.disabled = false;
+    resetBtn.disabled = false;
+    downloadBtn.disabled = false;
+    isProcessing = false;
+  };
+
+  // Reset Image to original
+  resetBtn.onclick = function() {
+    if (!sourceLoaded || isProcessing || !originalImage) return;
+    
+    canvas.width = originalImage.width;
+    canvas.height = originalImage.height;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(originalImage, 0, 0);
+  };
+
+  // Download the artifact
+  downloadBtn.onclick = function() {
+    if (!sourceLoaded) return;
+    
+    // Export at 1.0 quality because the artifacts are already permanently baked into the pixels!
+    var dataUrl = canvas.toDataURL('image/jpeg', 1.0);
+    var a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = "artifact_" + new Date().getTime() + ".jpg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+</script>
+</body>
+</html>
+
