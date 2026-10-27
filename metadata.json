@@ -1,6 +1,0 @@
-{
-  "name": "JPEG Artifact Generator",
-  "description": "A utilitarian, folk-computer inspired tool to iteratively rot and compress images.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

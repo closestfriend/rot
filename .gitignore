@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+CLAUDE.md
+AGENTS.md
+.claude/
+.env
+.env.local
